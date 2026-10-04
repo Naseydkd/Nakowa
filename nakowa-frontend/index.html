@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nakowa Assainissement - Gestion Interne</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body class="bg-color">
+    <div id="login-container" aria-live="polite"></div>
+    <div id="app-interface" class="app-wrapper">
+        <aside class="sidebar" id="main-sidebar">
+            <div class="sidebar-logo">
+                <i class="fa-solid fa-leaf"></i>
+                <span>Nakowa</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Opérations</div>
+                    <a href="#dashboard" class="nav-item" data-page="dashboard">
+                        <i class="fa-solid fa-house"></i> Dashboard
+                    </a>
+                    <a href="#collectes" class="nav-item" data-page="collectes">
+                        <i class="fa-solid fa-truck"></i> Collectes
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Gestion</div>
+                    <a href="#clients" class="nav-item" data-page="clients">
+                        <i class="fa-solid fa-users"></i> Clients
+                    </a>
+                    <a href="#abonnements" class="nav-item" data-page="abonnements">
+                        <i class="fa-solid fa-calendar-check"></i> Abonnements
+                    </a>
+                    <a href="#payments" class="nav-item" data-page="payments">
+                        <i class="fa-solid fa-credit-card"></i> Paiements
+                    </a>
+                    <a href="#map" class="nav-item" data-page="map">
+                        <i class="fa-solid fa-map-location-dot"></i> Carte
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Administration</div>
+                    <a href="#services" class="nav-item" data-page="services">
+                        <i class="fa-solid fa-gear"></i> Services
+                    </a>
+                    <a href="#users" class="nav-item" data-page="users" data-role="admin">
+                        <i class="fa-solid fa-user-shield"></i> Utilisateurs
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="sidebar-logout-btn" class="btn btn-outline" style="width: 100%; justify-content: center;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content" id="main-content">
+            <header class="header" id="main-header">
+                <div class="header-left">
+                    <button id="menu-toggle" class="menu-toggle">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="header-search">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <i class="fa-solid fa-bell" style="cursor: pointer; font-size: 18px;"></i>
+                    <div class="user-profile">
+                        <div class="user-avatar">AS</div>
+                        <div class="user-info">
+                            <span class="user-name">Antonio Samuel</span>
+                            <span class="user-role">Admin Officer</span>
+                        </div>
+                    </div>
+                    <button id="header-logout-btn" class="btn btn-outline" style="padding: 8px 15px; font-size: 13px;">
+                        <i class="fa-solid fa-right-from-bracket"></i> <span class="hide-mobile">Déconnexion</span>
+                    </button>
+                </div>
+            </header>
+
+            <div id="page-content">
+                <!-- Content will be loaded here by JS -->
+            </div>
+        </main>
+    </div>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

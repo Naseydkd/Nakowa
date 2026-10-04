@@ -1,0 +1,41 @@
+/* Nakowa — Design System */
+:root{--bg:#e9eaec;--surface:#fff;--ink:#1b2328;--text:#333;--text-muted:#777;--green-deep:#084c28;--green-bright:#22c54f;--red-badge:#d32f2f;--radius:18px;--shadow:0 4px 14px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.06);--font:'Inter',system-ui,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box;font-family:var(--font)}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);line-height:1.55;min-height:100vh}
+.app{max-width:1280px;margin:0 auto;padding:1.5rem 2rem 3rem;display:grid;grid-template-columns:260px 1fr;gap:1.5rem;align-items:start}
+@media(max-width:1020px){.app{grid-template-columns:1fr;padding:1rem}}
+.sidebar{position:sticky;top:1.25rem;background:var(--surface);border-radius:var(--radius);padding:1rem 1rem 1.25rem;box-shadow:var(--shadow);height:fit-content}
+.sidebar-brand{font-weight:800;font-size:1.15rem;letter-spacing:-.02em;color:var(--ink);margin-bottom:.6rem;padding-bottom:.5rem;border-bottom:1px solid #eee}
+.sidebar-brand span{font-weight:400;color:var(--green-deep)}
+.nav{display:flex;flex-direction:column;gap:.15rem}
+.nav a{display:block;padding:.55rem .7rem;border-radius:10px;color:var(--text);text-decoration:none;font-size:.82rem;font-weight:500;transition:background .15s,color .15s}
+.nav a:hover,.nav a.active{background:#f1f3f5;color:var(--ink);font-weight:600}
+.nav a.active{background:#e8f0ec;color:var(--green-deep)}
+.header-bar{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border-radius:var(--radius);padding:1rem 1.2rem;box-shadow:var(--shadow);margin-bottom:1.25rem}
+.header-bar h1{font-size:1.3rem;font-weight:800;letter-spacing:-.03em;color:var(--ink)}
+.header-bar h1 span{font-weight:400;color:#777;font-size:1rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1.25rem}
+.stat{background:var(--surface);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);position:relative}
+.stat .icon{width:40px;height:40px;border-radius:10px;background:var(--green-deep);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:.6rem}
+.stat h4{font-size:1.6rem;font-weight:800;letter-spacing:-.03em;color:var(--ink);line-height:1}
+.stat .sub{font-size:.78rem;color:#777;margin-top:.2rem}
+.stat .delta{position:absolute;top:.75rem;right:.75rem;font-size:.7rem;font-weight:700;padding:.15rem .45rem;border-radius:999px;background:#22c54f;color:#fff}
+.stat .delta.neg{background:#d32f2f}
+.card{background:var(--surface);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);margin-bottom:1.25rem}
+.card.green{background:linear-gradient(135deg,#084c28 0%,#0a5b30 100%);color:#fff}
+.card.green h3,.card.green p{color:#fff}
+.table-wrap{overflow-x:auto;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);margin-top:.75rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{background:#f4f5f7;color:var(--ink);font-weight:600;text-align:left;padding:.7rem .9rem;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #ddd}
+td{padding:.7rem .9rem;border-bottom:1px solid #eee;color:var(--text)}
+tr:hover{background:#f8f9fa}
+.btn{display:inline-flex;align-items:center;gap:.35rem;background:var(--green-deep);color:#fff;border:none;padding:.6rem 1rem;border-radius:10px;font-size:.85rem;font-weight:600;cursor:pointer;transition:opacity .15s;font-family:inherit;text-decoration:none}
+.btn:hover{opacity:.92}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid #ddd}
+.tag{display:inline-block;padding:.15rem .55rem;border-radius:999px;font-size:.75rem;font-weight:600}
+.tag-ok{background:#dff6e3;color:#084c28}
+.tag-inv{background:#fceae3;color:#7a1f1f}
+.tag-wait{background:#fff7d6;color:#6f5300}
+.tag-done{background:#084c28;color:#fff}
+.muted{color:#777;font-size:.85rem}

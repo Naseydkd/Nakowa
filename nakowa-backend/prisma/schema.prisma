@@ -1,0 +1,195 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Users table
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         UserRole @default(AGENT)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  createdPayments    Payment[]       @relation("PaymentCreatedBy")
+  collections        Collection[]    @relation("CollectionAgent")
+  activityLogs       ActivityLog[]   @relation("ActivityLogUser")
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  AGENT
+}
+
+// Clients table
+model Client {
+  id              String   @id @default(uuid())
+  firstName       String   @map("first_name")
+  lastName        String   @map("last_name")
+  phone           String?
+  email           String?
+  address         String?
+  activity        String?  // ex: Menage, Boutique, Atelier de couture, Menagere, Chef de menage, autres
+  number          String?  // ex: P1, P2
+  defaultAmount   Float    @default(2000) @map("default_amount") // Montant que le client doit payer (2000 par défaut)
+  latitude        Float?
+  longitude       Float?
+  notes           String?
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  subscriptions Subscription[]
+  payments      Payment[]
+  collections   Collection[]
+
+  @@index([phone])
+  @@index([isActive])
+  @@map("clients")
+}
+
+model Service {
+  id                    String      @id @default(uuid())
+  nom                   String      @unique
+  type                  ServiceType
+  description           String?
+  prixUnitaire          Float       @map("prix_unitaire")
+  unite                 String
+  passages              Int         @default(2) @map("passages")
+  dureeEstimee          Int?        @map("duree_estimee")
+  materielsNecessaires  String?     @map("materiels_necessaires")
+  precautions           String?
+  isActive              Boolean     @default(true) @map("is_active")
+  createdAt             DateTime    @default(now()) @map("created_at")
+  updatedAt             DateTime    @updatedAt @map("updated_at")
+  subscriptions         Subscription[]
+
+  @@map("services")
+}
+
+enum ServiceType {
+  VIDANGE
+  NETTOYAGE
+  ASSAINISSEMENT
+  CURAGE
+}
+
+// Subscriptions table (L'abonnement mensuel)
+model Subscription {
+  id             String   @id @default(uuid())
+  clientId       String   @map("client_id")
+  serviceId      String   @map("service_id")
+  amount         Float    // Montant de l'abonnement (ex: 5000)
+  period         String   // ex: "Septembre 2026"
+  startDate      DateTime @map("start_date")
+  endDate        DateTime @map("end_date")
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  client        Client       @relation(fields: [clientId], references: [id])
+  service       Service      @relation(fields: [serviceId], references: [id])
+  collections   Collection[]
+
+  @@index([clientId])
+  @@index([isActive])
+  @@map("subscriptions")
+}
+
+// Collections table (Les passages de collecte)
+model Collection {
+  id           String            @id @default(uuid())
+  subscriptionId String          @map("subscription_id")
+  clientId     String            @map("client_id")
+  agentId      String?           @map("agent_id")
+  scheduledAt  DateTime          @map("scheduled_at")
+  completedAt  DateTime?         @map("completed_at")
+  status       CollectionStatus  @default(SCHEDULED)
+  passageNumber Int              @default(1) @map("passage_number") // 1 or 2
+  problemReason String?          @map("problem_reason")
+  latitude     Float?
+  longitude    Float?
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+
+  // Relations
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+  client       Client       @relation(fields: [clientId], references: [id])
+  agent        User?        @relation("CollectionAgent", fields: [agentId], references: [id])
+
+  @@index([scheduledAt])
+  @@index([status])
+  @@index([agentId])
+  @@index([clientId])
+  @@map("collections")
+}
+
+enum CollectionStatus {
+  SCHEDULED    // À Collecter
+  COLLECTED    // Collecté
+  ABSENT       // Client absent
+  NO_WASTE     // Poubelle non présentée
+  ACCESS_DENIED // Accès impossible
+  REFUSED      // Client refuse
+  OTHER        // Autre
+}
+
+// Payments table
+model Payment {
+  id          String        @id @default(uuid())
+  clientId    String        @map("client_id")
+  amount      Float
+  period      String?       // ex: "octobre 2026" — mois concerné par le paiement
+  paymentDate DateTime      @default(now()) @map("payment_date")
+  method      PaymentMethod @default(ESPECES)
+  reference   String?
+  notes       String?
+  createdBy   String        @map("created_by")
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  // Relations
+  client  Client @relation(fields: [clientId], references: [id])
+  creator User   @relation("PaymentCreatedBy", fields: [createdBy], references: [id])
+
+  @@index([clientId])
+  @@map("payments")
+}
+
+enum PaymentMethod {
+  ESPECES
+  MYNITA
+  AMANA_TA
+  VIREMENT
+  AUTRE
+}
+
+// Activity Logs table
+model ActivityLog {
+  id          String           @id @default(uuid())
+  userId      String           @map("user_id")
+  action      String
+  entityType  String           @map("entity_type")
+  entityId    String           @map("entity_id")
+  description String
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation("ActivityLogUser", fields: [userId], references: [id])
+
+  @@map("activity_logs")
+}

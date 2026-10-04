@@ -1,0 +1,19 @@
+{
+  "name": "nakowa-mvp",
+  "version": "1.0.0",
+  "description": "Nakowa Client Management System MVP",
+  "scripts": {
+    "frontend:dev": "cd nakowa-frontend && npm start",
+    "backend:dev": "cd nakowa-backend && npm run start:dev",
+    "frontend:build": "cd nakowa-frontend && npm run build",
+    "backend:build": "cd nakowa-backend && npm run build",
+    "frontend:install": "cd nakowa-frontend && npm install",
+    "backend:install": "cd nakowa-backend && npm install",
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "install:all": "npm run frontend:install && npm run backend:install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "private": true
+}

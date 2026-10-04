@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modules Nakowa</title>
+</head>
+<body>
+    <h1>Test de chargement des modules</h1>
+    <div id="test-results"></div>
+
+    <script type="module">
+        const testResults = document.getElementById('test-results');
+        
+        function addResult(message, success = true) {
+            const div = document.createElement('div');
+            div.style.padding = '10px';
+            div.style.margin = '5px 0';
+            div.style.backgroundColor = success ? '#d4edda' : '#f8d7da';
+            div.style.border = `1px solid ${success ? '#c3e6cb' : '#f5c6cb'}`;
+            div.style.borderRadius = '4px';
+            div.textContent = message;
+            testResults.appendChild(div);
+        }
+
+        async function testModules() {
+            try {
+                // Test authService
+                const { authService } = await import('./js/services/auth.js');
+                addResult('✅ AuthService chargé avec succès');
+                
+                // Test router
+                const { router } = await import('./js/core/router.js');
+                addResult('✅ Router chargé avec succès');
+                
+                // Test auth core
+                const authCore = await import('./js/core/auth.js');
+                addResult('✅ Auth Core chargé avec succès');
+
+                addResult('🎉 Tous les modules se chargent correctement !');
+
+            } catch (error) {
+                addResult(`❌ Erreur de chargement: ${error.message}`, false);
+                console.error('Erreur:', error);
+            }
+        }
+
+        testModules();
+    </script>
+</body>
+</html>
