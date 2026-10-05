@@ -84,6 +84,15 @@ export const dashboardPage = {
                                 <div class="stat-label">Collectes En Attente</div>
                             </div>
                         </div>
+
+                        <!-- Collectes EN COURS -->
+                        <div class="stat-card">
+                            <div class="stat-icon" style="color: #ffc107;"><i class="fa-solid fa-list-check"></i></div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-collections-in-progress">--</div>
+                                <div class="stat-label">Collectes EN COURS</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -195,53 +204,53 @@ export const dashboardPage = {
     async loadRecentInterventions() {
         const list = document.getElementById('recent-interventions');
         try {
-            const response = await apiService.get('/collections?limit=50');
+            // Charger TOUTES les collectes du mois (même logique que Collectes)
+            const now = new Date();
+            const month = now.getMonth() + 1;
+            const year = now.getFullYear();
+            
+            const response = await apiService.get(`/collections?month=${month}&year=${year}&limit=10000`);
             const collections = response.data || [];
+
+            // Grouper par subscription et compter les collectes complétées
+            const grouped = {};
+            collections.forEach(c => {
+                const subId = c.subscriptionId;
+                if (!subId) return;
+                if (!grouped[subId]) {
+                    grouped[subId] = { 
+                        collectedCountTotal: 0,
+                        client: c.client,
+                        subscription: c.subscription,
+                        passages: []
+                    };
+                }
+                grouped[subId].passages.push(c);
+                if (c.status === 'COLLECTED') {
+                    grouped[subId].collectedCountTotal++;
+                }
+            });
+            
+            // Compter les cartes EN COURS (1-7 collectes) - EXACTEMENT comme Collectes
+            const inProgressCards = Object.values(grouped).filter(g => g.collectedCountTotal > 0 && g.collectedCountTotal < 8).length;
+            document.getElementById('stat-collections-in-progress').textContent = inProgressCards;
 
             if (collections.length === 0) {
                 list.innerHTML = '<tr><td colspan="4" style="text-align: center;">Aucune donnée disponible</td></tr>';
                 return;
             }
 
-            // Grouper par subscription pour afficher une ligne par tâche
-            const grouped = {};
-            collections.forEach(c => {
-                if (!grouped[c.subscriptionId]) {
-                    grouped[c.subscriptionId] = {
-                        client: c.client,
-                        subscription: c.subscription,
-                        passages: [],
-                        lastActivity: c.scheduledAt
-                    };
-                }
-                grouped[c.subscriptionId].passages.push(c);
-                // Garder la date la plus récente
-                if (new Date(c.scheduledAt) > new Date(grouped[c.subscriptionId].lastActivity)) {
-                    grouped[c.subscriptionId].lastActivity = c.scheduledAt;
-                }
-            });
-
-            const statusLabels = {
-                'COLLECTED': { label: 'Terminé', class: 'status-done' },
-                'SCHEDULED': { label: 'Planifié', class: 'status-pending' },
-                'ABSENT':    { label: 'Absent', class: 'status-cancelled' },
-                'NO_WASTE':  { label: 'Poubelle absente', class: 'status-cancelled' },
-                'ACCESS_DENIED': { label: 'Accès refusé', class: 'status-cancelled' },
-                'REFUSED':   { label: 'Refusé', class: 'status-cancelled' },
-                'OTHER':     { label: 'Autre problème', class: 'status-cancelled' },
-            };
-
             const tasks = Object.values(grouped).slice(0, 8);
 
             list.innerHTML = tasks.map(group => {
-                const totalPassages = group.subscription?.service?.passages || 2;
-                const collectedCount = group.passages.filter(p => p.status === 'COLLECTED').length;
+                const current = group.passages[0];
+                const totalPassages = 8;
+                const collectedCount = group.collectedCountTotal;
                 const hasScheduled = group.passages.some(p => p.status === 'SCHEDULED');
                 const hasProblem = group.passages.some(p => 
                     p.status !== 'COLLECTED' && p.status !== 'SCHEDULED'
                 );
 
-                // Statut global de la tâche
                 let globalStatus;
                 if (collectedCount >= totalPassages) {
                     globalStatus = { label: '✓ Terminé', class: 'status-done' };
@@ -262,13 +271,14 @@ export const dashboardPage = {
                     <tr>
                         <td style="font-weight: 600;">${clientName}</td>
                         <td>${serviceName}</td>
-                        <td>${new Date(group.lastActivity).toLocaleDateString('fr-FR')}</td>
+                        <td>${new Date(current.scheduledAt).toLocaleDateString('fr-FR')}</td>
                         <td><span class="status-badge ${globalStatus.class}">${globalStatus.label}</span></td>
                     </tr>
                 `;
             }).join('');
 
         } catch (error) {
+            console.error('Erreur dashboard:', error);
             list.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--danger);">Erreur chargement</td></tr>';
         }
     },

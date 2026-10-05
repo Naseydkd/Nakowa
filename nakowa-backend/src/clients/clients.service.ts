@@ -113,6 +113,13 @@ export class ClientsService {
     return this.prisma.client.update({ where: { id }, data });
   }
 
+  async updateDefaultAmount(id: string, defaultAmount: number) {
+    return this.prisma.client.update({
+      where: { id },
+      data: { defaultAmount },
+    });
+  }
+
   async deactivate(id: string) {
     return this.prisma.client.update({
       where: { id },

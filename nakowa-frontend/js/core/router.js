@@ -25,7 +25,7 @@ const routes = {
     'users': usersPage,
     'abonnements': abonnementsPage,
     'import': importPage,
-    'collectes': collectesPage,
+    'collectes': collectesPage
 };
 
 export const router = {

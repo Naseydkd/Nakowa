@@ -78,7 +78,30 @@ export class CollectionsService {
       }
 
       if (filters.status) {
-        where.status = filters.status as CollectionStatus;
+        if (filters.status === 'IN_PROGRESS') {
+          // Find subscriptions that are partially completed in the current filter context
+          const contextCollections = await this.prisma.collection.findMany({
+            where,
+            select: { subscriptionId: true, status: true },
+          });
+
+          const subStats = new Map();
+          contextCollections.forEach(c => {
+            const id = c.subscriptionId;
+            if (!subStats.has(id)) subStats.set(id, { collected: 0, total: 0 });
+            const stats = subStats.get(id);
+            stats.total++;
+            if (c.status === CollectionStatus.COLLECTED) stats.collected++;
+          });
+
+          const inProgressIds = Array.from(subStats.entries())
+            .filter(([_, stats]) => stats.collected > 0 && stats.collected < stats.total)
+            .map(([id]) => id);
+
+          where.subscriptionId = { in: inProgressIds };
+        } else {
+          where.status = filters.status as CollectionStatus;
+        }
       }
 
       if (filters.passage) {

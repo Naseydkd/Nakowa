@@ -52,6 +52,11 @@ export class ClientsController {
     return this.clientsService.update(id, data);
   }
 
+  @Patch(':id/default-amount')
+  async updateDefaultAmount(@Param('id') id: string, @Body() body: { defaultAmount: number }) {
+    return this.clientsService.updateDefaultAmount(id, body.defaultAmount);
+  }
+
   @Patch(':id/deactivate')
   async deactivate(@Param('id') id: string) {
     return this.clientsService.deactivate(id);

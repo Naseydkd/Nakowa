@@ -44,6 +44,7 @@ export class SubscriptionsService {
       throw new BadRequestException(`Service ${serviceId} non trouvé`);
     }
     const totalPassages = service.passages;
+    console.log(`[generateCollections] SubID=${subscriptionId}, Service passages=${totalPassages}`);
 
     // Supprimer les anciennes collectes pour ce mois
     await this.prisma.collection.deleteMany({
@@ -64,16 +65,19 @@ export class SubscriptionsService {
 
     for (let w = 0; w < 4; w++) {
       const count = base + (w < remainder ? 1 : 0);
+      console.log(`[generateCollections] Semaine ${w + 1}: count = ${count} passages`);
       for (let i = 0; i < count; i++) {
         const day = (w * 7) + preferredDays[i];
         const clampedDay = Math.min(day, daysInMonth);
+        const globalPassageNumber = w * base + i + 1; // Global passage number 1-8
+        console.log(`[generateCollections] Passage ${globalPassageNumber}: jour ${clampedDay}`);
 
         await this.prisma.collection.create({
           data: {
             subscriptionId,
             clientId,
             scheduledAt: new Date(year, month, clampedDay),
-            passageNumber: w + 1, // represents the week (1-4)
+            passageNumber: globalPassageNumber, // Global passage number (1-8)
           },
         });
       }
@@ -145,7 +149,7 @@ export class SubscriptionsService {
           orderBy: { createdAt: 'desc' },
         });
 
-        const amount = lastSub?.amount || 2000;
+        const amount = client.defaultAmount || 2000;
         const period = startDate.toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
 
         let serviceId = (lastSub as any)?.serviceId;

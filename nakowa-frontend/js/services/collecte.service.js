@@ -89,6 +89,7 @@ class CollecteService {
     getCollectionStatuses() {
         return [
             { value: 'SCHEDULED', label: 'À collecter', class: 'badge-warning' },
+            { value: 'IN_PROGRESS', label: 'En cours', class: 'badge-warning' },
             { value: 'COLLECTED', label: 'Collecté', class: 'badge-success' },
             { value: 'CLIENT_ABSENT', label: 'Client absent', class: 'badge-danger' },
             { value: 'NO_WASTE', label: 'Poubelle non présentée', class: 'badge-info' },
