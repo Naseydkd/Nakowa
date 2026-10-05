@@ -11,6 +11,8 @@ import { CollectionsModule } from './collections/collections.module';
 import { ActivityLogsModule } from './activity-logs/activity-logs.module';
 import { DatabaseModule } from './database/database.module';
 import { ZonesModule } from './zones/zones.module';
+import { EmailModule } from './email/email.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { ZonesModule } from './zones/zones.module';
     ActivityLogsModule,
     DatabaseModule,
     ZonesModule,
+    EmailModule,
+    ReportsModule,
   ],
 })
 export class AppModule {}
