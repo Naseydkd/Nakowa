@@ -1,12 +1,501 @@
-.btn {
-    padding: 10px 20px;
+/* Responsive */
+@media (max-width: 768px) {
+    .dropdown-menu {
+        right: -10px;
+        min-width: 180px;
+    }
+}
+
+/* ========================================= */
+/* BOUTONS */
+/* ========================================= */
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 12px 20px;
     border-radius: 8px;
+    font-size: 14px;
     font-weight: 600;
-    transition: all 0.2s;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 109, 68, 0.3);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
     gap: 8px;
 }
+
+.btn-secondary:hover {
+    background: var(--primary-color);
+    color: white;
+}
+/* ========================================= */
+/* MODALES NAKOWA */
+/* ========================================= */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 2000;
+}
+
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.mobile-modal .modal-content {
+    max-width: 400px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.modal-close:hover {
+    background: var(--bg-color);
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+    background: var(--card-bg);
+}
+
+.problem-reasons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.radio-card {
+    cursor: pointer;
+    display: block;
+}
+
+.radio-card input[type="radio"] {
+    display: none;
+}
+
+.radio-card .card-content {
+    background: var(--bg-color);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.radio-card:hover .card-content {
+    border-color: var(--primary-color);
+    background: var(--primary-light);
+}
+
+.radio-card input:checked + .card-content {
+    border-color: var(--primary-color);
+    background: var(--primary-light);
+    box-shadow: 0 0 0 2px rgba(0, 109, 68, 0.1);
+}
+
+.radio-card .card-content i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.help-text {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.collection-summary {
+    background: var(--bg-color);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.summary-info h4 {
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+.summary-info p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+}
+
+.empty-state.mobile {
+    padding: 2rem 1rem;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h4 {
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+.loading-placeholder {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+}
+
+.loading-placeholder i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.btn-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+}
+
+.form-input.compact {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.pagination-info {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Boutons Voir et Itinéraire style Nakowa */
+.btn-view {
+    background: linear-gradient(135deg, #006d44, #00875a);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 4px rgba(0, 109, 68, 0.2);
+}
+
+.btn-view:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 109, 68, 0.3);
+    background: linear-gradient(135deg, #005a38, #006d44);
+}
+
+.btn-view.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    gap: 4px;
+}
+
+.btn-itinerary {
+    background: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-itinerary:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 109, 68, 0.2);
+}
+
+.btn-itinerary.btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+    gap: 4px;
+    border-width: 1.5px;
+}
+
+.btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-ghost:hover {
+    background: var(--bg-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-success {
+    background: var(--success);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-success:hover {
+    background: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.btn-success.btn-sm {
+    font-size: 14px;
+    padding: 6px 10px;
+}
+
+.btn-success.btn-lg {
+    font-size: 18px;
+    padding: 10px 16px;
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.btn-danger.btn-sm {
+    font-size: 14px;
+    padding: 6px 10px;
+}
+
+.btn-danger.btn-lg {
+    font-size: 18px;
+    padding: 10px 16px;
+}
+
+.btn-lg {
+    padding: 12px 20px;
+    font-size: 14px;
+}
+
+.text-info { color: var(--info); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-danger { color: var(--danger); }
+
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 1rem;
+        width: calc(100% - 2rem);
+    }
+
+    .problem-reasons {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+    }
+
+    .pagination-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* Boutons responsive */
+    .action-buttons {
+        gap: 0.5rem;
+        flex-wrap: nowrap;
+    }
+
+    .btn-view.btn-sm,
+    .btn-itinerary.btn-sm {
+        padding: 6px 10px;
+        font-size: 11px;
+        gap: 4px;
+    }
+
+    .collection-actions {
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-view,
+    .btn-itinerary {
+        flex: 1;
+        justify-content: center;
+        min-width: 120px;
+    }
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--bg-dark, #333);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+.toast-success { border-left: 4px solid #28a745; }
+.toast-error { border-left: 4px solid #dc3545; }
+.toast-info { border-left: 4px solid #17a2b8; }
 
 .btn-primary {
     background-color: var(--primary-color);

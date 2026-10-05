@@ -1,6 +1,7 @@
 // Page Collectes pour Nakowa Assainissement
 import { collecteService } from '../services/collecte.service.js';
 import { authService } from '../services/auth.js';
+import { ui } from '../core/ui.js';
 
 export function renderCollectesPage() {
     return `
@@ -73,7 +74,7 @@ export function renderCollectesPage() {
                         <label>Recherche (Nom, Téléphone, Adresse)</label>
                         <input type="text" id="filter-search" class="form-input" placeholder="Ex: Jean Dupont, 77123456, Kalley..." onkeyup="applyFilters()">
                     </div>
-                    
+
                     <!-- Filtres de date -->
                     <div class="filter-group">
                         <label>Mois</label>
@@ -81,15 +82,15 @@ export function renderCollectesPage() {
                             ${[...Array(12)].map((_, i) => {
                                 const label = new Date(0, i).toLocaleString('fr-FR', { month: 'long' });
                                 const cur   = new Date().getMonth();
-                                return `<option value="${i+1}" ${i===cur?'selected':''}>${label.charAt(0).toUpperCase()+label.slice(1)}</option>`;
+                                return \`<option value="\${i+1}" \${i===cur?'selected':''}>\${label.charAt(0).toUpperCase()+label.slice(1)}</option>\`;
                             }).join('')}
                         </select>
                     </div>
                     <div class="filter-group">
                         <label>Année</label>
-                        <input type="number" id="filter-year" class="form-input" min="1900" max="2100" value="${new Date().getFullYear()}" onchange="applyFilters()">
+                        <input type="number" id="filter-year" class="form-input" min="1900" max="2100" value="\${new Date().getFullYear()}" onchange="applyFilters()">
                     </div>
-                    
+
                     <!-- Filtres de localisation et agent -->
                     <div class="filter-group">
                         <label>Zone/Adresse</label>
@@ -103,7 +104,7 @@ export function renderCollectesPage() {
                             <option value="">Tous les agents</option>
                         </select>
                     </div>
-                    
+
                     <!-- Filtres de statut et passage -->
                     <div class="filter-group">
                         <label>Statut</label>
@@ -125,7 +126,7 @@ export function renderCollectesPage() {
                             <option value="8">Passage 8</option>
                         </select>
                     </div>
-                    
+
                     <!-- Boutons d'action -->
                     <div class="filter-group" style="grid-column: 1 / -1; display: flex; gap: 10px;">
                         <button class="btn btn-outline" onclick="resetFilters()" style="flex: 1;">
@@ -337,7 +338,7 @@ async function loadCollectionsData() {
 
     } catch (error) {
         console.error('Erreur lors du chargement des collectes:', error);
-        showErrorMessage('Erreur lors du chargement des collectes');
+        ui.showNotification('Erreur lors du chargement des collectes', 'error');
     } finally {
         showLoading(false);
     }
@@ -362,9 +363,9 @@ function updateStats(stats) {
     const total = scheduled || 1;
     const percentage = Math.round((completed / total) * 100);
 
-    document.getElementById('progress-label').textContent = `${completed} / ${total}`;
-    document.getElementById('progress-percentage').textContent = `${percentage}%`;
-    document.getElementById('progress-fill').style.width = `${percentage}%`;
+    document.getElementById('progress-label').textContent = \`${completed} / \${total}\`;
+    document.getElementById('progress-percentage').textContent = \`${percentage}%\`;
+    document.getElementById('progress-fill').style.width = \`${percentage}%\`;
 }
 
 function renderPassageProgress(subscriptionId, collections, totalPassages) {
@@ -391,42 +392,42 @@ function renderPassageProgress(subscriptionId, collections, totalPassages) {
             label = i;
         }
 
-        html += `
+        html += \`
             <div class="passage-circle" style="
                 width: 30px; height: 30px;
                 border-radius: 50%;
-                background: ${color};
+                background: \${color};
                 color: white;
                 display: flex; align-items: center; justify-content: center;
                 font-size: 14px; font-weight: bold;
                 transition: all 0.3s ease;
-                ${isCurrent ? 'box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.4); animation: pulse 2s infinite;' : ''}
+                \${isCurrent ? 'box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.4); animation: pulse 2s infinite;' : ''}
             ">
-                ${label}
+                \${label}
             </div>
-        `;
+        \`;
 
         if (i < totalPassages) {
             const lineCompleted = isCompleted;
-            html += `<div class="passage-line" style="flex: 1; height: 3px; background: ${lineCompleted ? '#28a745' : '#dee2e6'}; transition: all 0.3s ease;"></div>`;
+            html += \`<div class="passage-line" style="flex: 1; height: 3px; background: \${lineCompleted ? '#28a745' : '#dee2e6'}; transition: all 0.3s ease;"></div>\`;
         }
     }
 
     html += '</div>';
-    
+
     // Ajouter l'animation pulse si elle n'existe pas
     if (!document.getElementById('passage-progress-styles')) {
         const style = document.createElement('style');
         style.id = 'passage-progress-styles';
-        style.textContent = `
+        style.textContent = \`
             @keyframes pulse {
                 0%, 100% { transform: scale(1); }
                 50% { transform: scale(1.1); }
             }
-        `;
+        \`;
         document.head.appendChild(style);
     }
-    
+
     return html;
 }
 
@@ -435,13 +436,13 @@ function renderCollections() {
     const collections = window.collectesPageData.collections;
 
     if (!collections || collections.length === 0) {
-        container.innerHTML = `
+        container.innerHTML = \`
             <div class="empty-state">
                 <i class="fa-solid fa-truck"></i>
                 <h3>Aucune collecte trouvée</h3>
                 <p>Aucune collecte ne correspond à vos critères de recherche.</p>
             </div>
-        `;
+        \`;
         return;
     }
 
@@ -454,7 +455,7 @@ function renderCollections() {
                 console.warn('Collection sans subscriptionId:', c);
                 return;
             }
-            
+
             if (!grouped[subId]) {
                 grouped[subId] = {
                     subscription: c.subscription,
@@ -475,10 +476,8 @@ function renderCollections() {
             }
         });
 
-        // Toutes les tâches (pas de filtre)
-        const activeTasks = Object.values(grouped);
-        
         // S'assurer que chaque groupe a un currentCollection pour l'affichage
+        const activeTasks = Object.values(grouped);
         activeTasks.forEach(group => {
             if (!group.currentCollection && group.passages.length > 0) {
                 // Trouver le premier passage SCHEDULED, sinon prendre le premier passage
@@ -493,58 +492,86 @@ function renderCollections() {
         container.innerHTML = activeTasks.map(group => {
             const current = group.currentCollection;
             const formatted = collecteService.formatCollectionForDisplay(current);
-            // Passages par semaine * 4 semaines = 8 passages par mois
-            const passagesPerWeek = group.subscription?.service?.passages || 2;
-            const totalPassages = passagesPerWeek * 4;
+            // Use the total passages from the subscription instead of hardcoded 8
+            const totalPassages = group.subscription?.totalPassages || 8;
 
-            return `
-                <div class="collection-card ${formatted.statusBadge.class}">
+            // Calculate global status of the card based on the current week
+            let currentWeek = 1;
+            for (let week = 1; week <= 4; week++) {
+                const weekCollections = group.passages.filter(c => c.passageNumber === week);
+                if (weekCollections.length > 0 && weekCollections.some(c => c.status === 'SCHEDULED')) {
+                    currentWeek = week;
+                    break;
+                }
+            }
+
+            const currentWeekCollections = group.passages.filter(c => c.passageNumber === currentWeek);
+            const collectedCount = currentWeekCollections.filter(c => c.status === 'COLLECTED').length;
+            const scheduledCount = currentWeekCollections.filter(c => c.status === 'SCHEDULED').length;
+
+            const allCollected = collectedCount === totalPassages;
+            const someCollected = collectedCount > 0 && collectedCount < totalPassages;
+
+            let cardStatus, cardStatusLabel;
+            if (allCollected) {
+                cardStatus = 'badge-success';
+                cardStatusLabel = 'Collecté';
+            } else if (someCollected) {
+                cardStatus = 'badge-warning';
+                cardStatusLabel = 'En cours';
+            } else {
+                cardStatus = 'badge-warning';
+                cardStatusLabel = 'À collecter';
+            }
+
+            return \`
+                <div class="collection-card \${cardStatus}">
                     <div class="collection-header">
                         <div class="client-info">
-                            <h4>${formatted.clientName}</h4>
-                            <p><i class="fa-solid fa-location-dot"></i> ${group.client?.zone || 'Zone inconnue'}</p>
-                            <p><i class="fa-solid fa-phone"></i> ${group.client?.phone || 'Téléphone non renseigné'}</p>
+                            <h4>\${formatted.clientName}</h4>
+                            <p><i class="fa-solid fa-location-dot"></i> \${group.client?.zone || 'Zone inconnue'}</p>
+                            <p><i class="fa-solid fa-phone"></i> \${group.client?.phone || 'Téléphone non renseigné'}</p>
                         </div>
                         <div class="collection-badge">
-                            <span class="badge ${formatted.statusBadge.class}">${formatted.statusBadge.label}</span>
+                            <span class="badge \${cardStatus}">\${cardStatusLabel}</span>
                         </div>
                     </div>
 
                     <div class="collection-details">
-                        ${renderPassageProgress(group.subscription?.id, group.passages, totalPassages)}
+                        \${renderPassageProgress(group.subscription?.id, group.passages, totalPassages)}
                         <div class="detail-item">
-                            <strong>${formatted.passageLabel}</strong>
+                            <strong>\${formatted.passageLabel}</strong>
                         </div>
                         <div class="detail-item">
-                            <strong>${formatted.formattedDate}</strong>
+                            <strong>\${formatted.formattedDate}</strong>
                         </div>
-                        ${group.agent ? `
+                        \${group.agent ? \`
                             <div class="detail-item">
-                                <i class="fa-solid fa-user"></i> ${group.agent.name}
+                                <i class="fa-solid fa-user"></i> \${group.agent.name}
                             </div>
-                        ` : ''}
+                        \` : ''}
                     </div>
 
                     <div class="collection-actions">
-                        <button class="btn-view" data-action="view" data-id="${current.id}">
+                        <button class="btn-view" data-action="view" data-id="\${current.id}">
                             <i class="fa-solid fa-eye"></i> Voir
                         </button>
-                        <button class="btn-itinerary" data-action="itinerary" data-lat="${group.client?.latitude}" data-lon="${group.client?.longitude}">
+                        <button class="btn-itinerary" data-action="itinerary" data-lat="\${group.client?.latitude}" data-lon="\${group.client?.longitude}">
                             <i class="fa-solid fa-route"></i> Itinéraire
                         </button>
-                        ${current.status !== 'COLLECTED' ? `
-                            <button class="btn-success btn-lg" data-action="collect" data-id="${current.id}">
+                        \${current.status !== 'COLLECTED' ? \`
+                            <button class="btn-success btn-lg" data-action="collect" data-id="\${current.id}">
                                 ✓
                             </button>
-                            ${current.status === 'SCHEDULED' ? `
-                            <button class="btn-danger btn-lg" data-action="problem" data-id="${current.id}">
+                            \${current.status === 'SCHEDULED' ? \`
+                            <button class="btn-danger btn-lg" data-action="problem" data-id="\${current.id}">
                                 ✗
                             </button>
-                            ` : ''}
-                        ` : ''}
+                            \` : ''}
+                        \` : ''}
                     </div>
                 </div>
-            `;
+            \`;
         }).join('');
 
         attachCollectionEvents(container);
@@ -561,7 +588,7 @@ function attachCollectionEvents(container) {
             viewCollection(collectionId);
         });
     });
-    
+
     // Boutons Itinéraire
     container.querySelectorAll('button[data-action="itinerary"]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -570,7 +597,7 @@ function attachCollectionEvents(container) {
             openItinerary(lat, lon);
         });
     });
-    
+
     // Boutons Collecté
     container.querySelectorAll('button[data-action="collect"]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -578,7 +605,7 @@ function attachCollectionEvents(container) {
             markAsCollected(collectionId);
         });
     });
-    
+
     // Boutons Problème
     container.querySelectorAll('button[data-action="problem"]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -590,7 +617,7 @@ function attachCollectionEvents(container) {
 
 function renderCollectionsTable(container, collections) {
     container.className = 'collections-table';
-    container.innerHTML = `
+    container.innerHTML = \`
         <div class="table-container">
             <table class="table">
                 <thead>
@@ -605,52 +632,52 @@ function renderCollectionsTable(container, collections) {
                     </tr>
                 </thead>
                 <tbody>
-                    ${collections.map(collection => {
+                    \${collections.map(collection => {
                         const formatted = collecteService.formatCollectionForDisplay(collection);
 
-                        return `
+                        return \`
                             <tr>
                                 <td>
                                     <div class="client-cell">
-                                        <strong>${formatted.clientName}</strong>
-                                        <small>${collection.client?.phone || ''}</small>
+                                        <strong>\${formatted.clientName}</strong>
+                                        <small>\${collection.client?.phone || ''}</small>
                                     </div>
                                 </td>
-                                <td>${collection.client?.zone || 'N/A'}</td>
-                                <td>${formatted.passageLabel}</td>
-                                <td>${formatted.formattedDate}</td>
-                                <td>${collection.agent?.name || 'Non assigné'}</td>
+                                <td>\${collection.client?.zone || 'N/A'}</td>
+                                <td>\${formatted.passageLabel}</td>
+                                <td>\${formatted.formattedDate}</td>
+                                <td>\${collection.agent?.name || 'Non assigné'}</td>
                                 <td>
-                                    <span class="badge ${formatted.statusBadge.class}">${formatted.statusBadge.label}</span>
+                                    <span class="badge \${formatted.statusBadge.class}">\${formatted.statusBadge.label}</span>
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn-view btn-sm" data-action="view" data-id="${collection.id}" title="Voir">
+                                        <button class="btn-view btn-sm" data-action="view" data-id="\${collection.id}" title="Voir">
                                             <i class="fa-solid fa-eye"></i> Voir
                                         </button>
-                                        <button class="btn-itinerary btn-sm" data-action="itinerary" data-lat="${collection.client?.latitude}" data-lon="${collection.client?.longitude}" title="Itinéraire">
+                                        <button class="btn-itinerary btn-sm" data-action="itinerary" data-lat="\${collection.client?.latitude}" data-lon="\${collection.client?.longitude}" title="Itinéraire">
                                             <i class="fa-solid fa-route"></i> Itinéraire
                                         </button>
-                                        ${collection.status !== 'COLLECTED' ? `
-                                            <button class="btn-success btn-sm" data-action="collect" data-id="${collection.id}" title="Marquer comme collecté">
+                                        \${collection.status !== 'COLLECTED' ? \`
+                                            <button class="btn-success btn-sm" data-action="collect" data-id="\${collection.id}" title="Marquer comme collecté">
                                                 ✓
                                             </button>
-                                            ${collection.status === 'SCHEDULED' ? `
-                                            <button class="btn-danger btn-sm" data-action="problem" data-id="${collection.id}" title="Signaler un problème">
+                                            \${collection.status === 'SCHEDULED' ? \`
+                                            <button class="btn-danger btn-sm" data-action="problem" data-id="\${collection.id}" title="Signaler un problème">
                                                 ✗
                                             </button>
-                                            ` : ''}
-                                        ` : ''}
+                                            \` : ''}
+                                        \` : ''}
                                     </div>
                                 </td>
                             </tr>
-                        `;
+                        \`;
                     }).join('')}
                 </tbody>
             </table>
         </div>
-    `;
-    
+    \`;
+
     // Attacher les événements
     attachCollectionEvents(container);
 }
@@ -667,28 +694,28 @@ window.viewCollection = async function(collectionId) {
         const collection = response.data || response;
         const formatted = collecteService.formatCollectionForDisplay(collection);
 
-        body.innerHTML = `
+        body.innerHTML = \`
             <div class="collection-summary">
                 <div class="summary-info">
-                    <h4>${formatted.clientName}</h4>
-                    <p><i class="fa-solid fa-location-dot"></i> ${collection.client?.zone || 'Zone inconnue'}</p>
-                    <p><i class="fa-solid fa-phone"></i> ${collection.client?.phone || 'Non renseigné'}</p>
-                    <p><i class="fa-solid fa-calendar"></i> ${formatted.formattedDate} - ${formatted.passageLabel}</p>
+                    <h4>\${formatted.clientName}</h4>
+                    <p><i class="fa-solid fa-location-dot"></i> \${collection.client?.zone || 'Zone inconnue'}</p>
+                    <p><i class="fa-solid fa-phone"></i> \${collection.client?.phone || 'Non renseigné'}</p>
+                    <p><i class="fa-solid fa-calendar"></i> \${formatted.formattedDate} - \${formatted.passageLabel}</p>
                 </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="openItinerary('${collection.client?.latitude}', '${collection.client?.longitude}')">
+                <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="openItinerary('\${collection.client?.latitude}', '\${collection.client?.longitude}')">
                     <i class="fa-solid fa-route"></i> Itinéraire
                 </button>
-                <button class="btn btn-outline" style="width: 100%; justify-content: center;" onclick="viewClient('${collection.clientId}')">
+                <button class="btn btn-outline" style="width: 100%; justify-content: center;" onclick="viewClient('\${collection.clientId}')">
                     <i class="fa-solid fa-user"></i> Client
                 </button>
             </div>
             <div class="status-section">
                 <span class="stat-label">Statut actuel:</span>
-                <span class="status-badge ${formatted.statusBadge.class}">${formatted.statusBadge.label}</span>
+                <span class="status-badge \${formatted.statusBadge.class}">\${formatted.statusBadge.label}</span>
             </div>
-        `;
+        \`;
     } catch (error) {
         console.error('Erreur lors du chargement des détails:', error);
         document.getElementById('details-modal-body').innerHTML = '<p class="text-danger">Erreur lors du chargement des détails.</p>';
@@ -700,7 +727,7 @@ window.closeDetailsModal = function() {
 };
 
 window.viewClient = function(clientId) {
-    window.location.hash = `client-details?id=${clientId}`;
+    window.location.hash = \`client-details?id=\${clientId}\`;
 };
 
 window.markAsCollected = async function(collectionId) {
@@ -714,14 +741,14 @@ window.markAsCollected = async function(collectionId) {
         }
 
         const result = await collecteService.markAsCollected(collectionId, locationData);
-        
+
         // Afficher un message approprié selon la situation
         if (result.isComplete) {
             showSuccessMessage('✓ Tous les passages sont terminés !');
         } else {
             showSuccessMessage('✓ Passage validé ! Prochain passage activé.');
         }
-        
+
         // Recharger les données pour afficher la progression
         await loadCollectionsData();
 
@@ -805,10 +832,10 @@ window.resetFilters = function() {
     document.getElementById('filter-agent').value = '';
     document.getElementById('filter-status').value = '';
     document.getElementById('filter-passage').value = '';
-    
+
     // Réinitialiser la pagination
     window.collectesPageData.currentPage = 1;
-    
+
     // Recharger les données
     loadCollectionsData();
 };
@@ -834,12 +861,12 @@ window.toggleFilters = function() {
 function showLoading(show) {
     const container = document.getElementById('collections-container');
     if (show) {
-        container.innerHTML = `
+        container.innerHTML = \`
             <div class="loading-placeholder">
                 <i class="fa-solid fa-spinner fa-spin"></i>
                 <p>Chargement des collectes...</p>
             </div>
-        `;
+        \`;
     }
 }
 
@@ -850,7 +877,7 @@ window.setCollectionsView = function(view) {
     document.querySelectorAll('[data-view]').forEach(btn => {
         btn.classList.remove('active');
     });
-    document.querySelector(`[data-view="${view}"]`).classList.add('active');
+    document.querySelector(\`[data-view="\${view}"]\`).classList.add('active');
 
     renderCollections();
 };
@@ -871,11 +898,11 @@ function initEvents() {
 }
 
 function showErrorMessage(msg) {
-    alert(msg);
+    ui.showNotification(msg, 'error');
 }
 
 function showSuccessMessage(msg) {
-    alert(msg);
+    ui.showNotification(msg, 'success');
 }
 
 function updatePagination(pagination) {
@@ -883,7 +910,7 @@ function updatePagination(pagination) {
     const controls = document.getElementById('page-numbers');
     if (!info || !controls) return;
 
-    info.textContent = `Page ${pagination.page || 1} sur ${pagination.totalPages || 1}`;
+    info.textContent = \`Page \${pagination.page || 1} sur \${pagination.totalPages || 1}\`;
     controls.textContent = pagination.page || 1;
 }
 
@@ -906,14 +933,14 @@ function openItinerary(latitude, longitude) {
         showErrorMessage('Géolocalisation non disponible pour ce client');
         return;
     }
-    
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+
+    const url = \`https://www.google.com/maps/dir/?api=1&destination=\${latitude},\${longitude}\`;
     window.open(url, '_blank');
 }
 
 // Fonction pour voir les détails du client
 function viewClient(clientId) {
-    window.location.hash = `client-details?id=${clientId}`;
+    window.location.hash = \`client-details?id=\${clientId}\`;
 }
 
 // Export des fonctions globales pour onclick

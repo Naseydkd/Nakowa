@@ -85,7 +85,7 @@ export class CollectionsService {
         where.passageNumber = parseInt(filters.passage, 10);
       }
 
-      // Fetch all matching collections to apply custom sorting
+      // Fetch all matching collections (keep original order by date)
       const allCollections = await this.prisma.collection.findMany({
         where,
         include: {
@@ -96,20 +96,9 @@ export class CollectionsService {
         orderBy: { scheduledAt: 'asc' },
       });
 
-      // Custom Sort: SCHEDULED -> PROBLEM -> COLLECTED
-      const statusPriority = {
-        [CollectionStatus.SCHEDULED]: 0,
-        [CollectionStatus.COLLECTED]: 2,
-      };
-
-      const sorted = allCollections.sort((a, b) => {
-        const priorityA = statusPriority[a.status] ?? 1;
-        const priorityB = statusPriority[b.status] ?? 1;
-        return priorityA - priorityB;
-      });
-
-      const data = sorted.slice(skip, skip + limit);
-      const total = sorted.length;
+      // Keep original order (by date) - no custom sorting
+      const data = allCollections.slice(skip, skip + limit);
+      const total = allCollections.length;
 
       const stats = await this.calculateStats(where);
 
@@ -154,15 +143,6 @@ export class CollectionsService {
         select: { 
           status: true,
           subscriptionId: true,
-          subscription: {
-            select: {
-              service: {
-                select: {
-                  passages: true
-                }
-              }
-            }
-          }
         },
       });
 
@@ -173,7 +153,7 @@ export class CollectionsService {
         const subId = collection.subscriptionId;
         if (!groupedBySubscription.has(subId)) {
           groupedBySubscription.set(subId, {
-            totalPassages: collection.subscription?.service?.passages || 2,
+            totalPassages: 8, // Fixed: always 8 collectes (2 per week × 4 weeks)
             collections: []
           });
         }
@@ -242,29 +222,13 @@ export class CollectionsService {
       },
     });
 
-    // Vérifier s'il y a un prochain passage à activer
-    const totalPassages = collection.subscription?.service?.passages || 2;
+    // We always have 8 collectes (2 per week × 4 weeks), so passageNumber goes from 1 to 4 (representing weeks)
+    // The next week's collectes should already be available and remain SCHEDULED
     const currentPassage = collection.passageNumber;
-
-    if (currentPassage < totalPassages) {
-      // Chercher le prochain passage
-      const nextPassage = await this.prisma.collection.findFirst({
-        where: {
-          subscriptionId: collection.subscriptionId,
-          passageNumber: currentPassage + 1,
-        },
-      });
-
-      // Si le prochain passage existe et n'est pas encore collecté, on le garde SCHEDULED
-      // Sinon il n'y a rien à faire, il est déjà prêt
-      if (nextPassage && nextPassage.status !== CollectionStatus.COLLECTED) {
-        // Le prochain passage est déjà SCHEDULED, pas besoin de le modifier
-      }
-    }
-
+    
     return { 
       message: 'Passage validé avec succès',
-      isComplete: currentPassage >= totalPassages
+      isComplete: currentPassage >= 4 // All 4 weeks complete
     };
   }
 

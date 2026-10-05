@@ -8,41 +8,45 @@ export class SubscriptionsService {
   constructor(private prisma: PrismaService) {}
 
   async createSubscription(clientId: string, serviceId: string, amount: number, period: string, startDate: Date, endDate: Date, monthYear?: { month: number, year: number }) {
-    const id = randomUUID();
-
     try {
-      // Utilisation d'une requête RAW pour contourner les problèmes de types du client Prisma
-      await this.prisma.$executeRaw`
-        INSERT INTO subscriptions (id, client_id, service_id, amount, period, start_date, end_date, is_active, created_at, updated_at)
-        VALUES (${id}, ${clientId}, ${serviceId}, ${amount}, ${period}, ${startDate}, ${endDate}, true, NOW(), NOW())
-      `;
-
-      const subscription = await this.prisma.subscription.findUnique({
-        where: { id },
+      const subscription = await this.prisma.subscription.create({
+        data: {
+          clientId,
+          serviceId,
+          amount,
+          period,
+          startDate,
+          endDate,
+          isActive: true,
+        },
       });
 
       await this.generateCollections(subscription.id, clientId, serviceId, monthYear);
 
       return subscription;
     } catch (error) {
-      console.error('Erreur lors de la création de l\'abonnement via RAW query:', error);
+      console.error('Erreur lors de la création de l\'abonnement:', error);
       throw error;
     }
   }
 
   async generateCollections(subscriptionId: string, clientId: string, serviceId: string, monthYear?: { month: number, year: number }) {
-    const service = await (this.prisma.service as any).findUnique({ where: { id: serviceId } });
-    // Nombre de passages par semaine × 4 semaines = 8 passages par mois
-    const passagesPerWeek = service?.passages || 2;
-    const passages = passagesPerWeek * 4; // 8 passages total par mois
-    
     // Utiliser le mois/année fourni, ou le mois/année actuel
     const now = new Date();
     const month = monthYear?.month ?? now.getMonth();
     const year = monthYear?.year ?? now.getFullYear();
-    
-    // Vérifier qu'on ne crée pas de doublons
-    const existingCollections = await this.prisma.collection.count({
+
+    // 1. Dynamic Passages: Get count from service
+    const service = await this.prisma.service.findUnique({
+      where: { id: serviceId },
+    });
+    if (!service) {
+      throw new BadRequestException(`Service ${serviceId} non trouvé`);
+    }
+    const totalPassages = service.passages;
+
+    // Supprimer les anciennes collectes pour ce mois
+    await this.prisma.collection.deleteMany({
       where: {
         subscriptionId,
         scheduledAt: {
@@ -52,26 +56,26 @@ export class SubscriptionsService {
       },
     });
 
-    if (existingCollections > 0) {
-      console.warn(`⚠️ Les collectes existent déjà pour cette subscription (${subscriptionId})`);
-      return;
-    }
-    
-    // Créer 2 collectes par semaine pendant 4 semaines
-    let passageNumber = 1;
-    for (let week = 1; week <= 4; week++) {
-      for (let day = 0; day < passagesPerWeek; day++) {
-        const dayOfMonth = week * 7 + day;
-        if (dayOfMonth <= 31) { // S'assurer qu'on ne sort pas du mois
-          await this.prisma.collection.create({
-            data: {
-              subscriptionId,
-              clientId,
-              scheduledAt: new Date(year, month, dayOfMonth),
-              passageNumber: passageNumber++,
-            },
-          });
-        }
+    // 2. Distribution Logic
+    const base = Math.floor(totalPassages / 4);
+    const remainder = totalPassages % 4;
+    const preferredDays = [3, 5, 2, 6, 1, 7, 4];
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    for (let w = 0; w < 4; w++) {
+      const count = base + (w < remainder ? 1 : 0);
+      for (let i = 0; i < count; i++) {
+        const day = (w * 7) + preferredDays[i];
+        const clampedDay = Math.min(day, daysInMonth);
+
+        await this.prisma.collection.create({
+          data: {
+            subscriptionId,
+            clientId,
+            scheduledAt: new Date(year, month, clampedDay),
+            passageNumber: w + 1, // represents the week (1-4)
+          },
+        });
       }
     }
   }
@@ -214,9 +218,9 @@ export class SubscriptionsService {
       else                              paymentStatus = 'NON_PAYE';
 
       // Statut des collectes
-      // Nombre de passages: passagesPerWeek * 4 semaines
-      const passagesPerWeek = sub.service?.passages || 2;
-      const totalPassages = passagesPerWeek * 4; // 8 passages par mois
+      // passageNumber now represents the week (1-4), and we have 2 collectes per week
+      // So totalPassages should be derived from the service definition
+      const totalPassages = sub.service.passages;
       const collectedCount  = sub.collections.filter(c => c.status === 'COLLECTED').length;
       let collecteStatus: string;
       if (collectedCount >= totalPassages)    collecteStatus = 'TERMINE';

@@ -100,14 +100,10 @@ class CollecteService {
 
     getPassageTypes() {
         return [
-            { value: 1, label: 'Passage 1' },
-            { value: 2, label: 'Passage 2' },
-            { value: 3, label: 'Passage 3' },
-            { value: 4, label: 'Passage 4' },
-            { value: 5, label: 'Passage 5' },
-            { value: 6, label: 'Passage 6' },
-            { value: 7, label: 'Passage 7' },
-            { value: 8, label: 'Passage 8' }
+            { value: 1, label: 'Semaine 1' },
+            { value: 2, label: 'Semaine 2' },
+            { value: 3, label: 'Semaine 3' },
+            { value: 4, label: 'Semaine 4' }
         ];
     }
 
@@ -140,7 +136,7 @@ class CollecteService {
         return {
             ...collection,
             statusBadge: status || { value: collection.status, label: collection.status, class: 'badge-secondary' },
-            passageLabel: `Passage ${collection.passageNumber}`,
+            passageLabel: `Semaine ${collection.passageNumber}`,
             formattedDate: this.formatDate(collection.scheduledDate),
             clientName: collection.client ? `${collection.client.firstName} ${collection.client.lastName}` : 'Client inconnu'
         };
