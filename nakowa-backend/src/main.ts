@@ -16,17 +16,18 @@ async function bootstrap() {
 
   // CORS - Multi-origin support (dev + production)
   const allowedOrigins = [
-    'http://localhost:5500',                    // Dev local
-    'http://127.0.0.1:5500',                    // Dev local alternative
-    'https://nakowa-three.vercel.app',          // Production frontend
-    configService.get<string>('FRONTEND_URL'),  // Custom domain (from env)
-    /^https:\/\/nakowa-three-.*\.vercel\.app$/, // Preview deployments frontend
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    'https://nakowa-three.vercel.app',
+    configService.get<string>('FRONTEND_URL'),
+    /^https:\/\/nakowa-three-.*\.vercel\.app$/,
   ].filter(Boolean);
 
   app.enableCors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl, etc.)
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.some(allowed => 
+        allowed instanceof RegExp ? allowed.test(origin) : allowed === origin
+      )) {
         callback(null, true);
       } else {
         console.warn(`CORS: Origin ${origin} not allowed`);
@@ -47,22 +48,12 @@ async function bootstrap() {
     }),
   );
 
-  // Initialize app (required for serverless)
-  await app.init();
-
-  return app;
+  // Start server
+  const port = configService.get<number>('PORT') || 3000;
+  await app.listen(port);
+  
+  console.log(`🚀 Nakowa Backend running on port ${port}`);
+  console.log(`🌍 Environment: ${configService.get<string>('NODE_ENV')}`);
 }
 
-// For local development
-if (require.main === module) {
-  bootstrap().then(async (app) => {
-    const configService = app.get(ConfigService);
-    const port = configService.get<number>('PORT') || 3000;
-    await app.listen(port);
-    console.log(`🚀 Nakowa Backend running on: http://localhost:${port}/api`);
-    console.log(`🌍 Environment: ${configService.get<string>('NODE_ENV')}`);
-  });
-}
-
-// Export for serverless
-module.exports = { bootstrap };
+bootstrap();
