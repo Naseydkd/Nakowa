@@ -8,24 +8,52 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-// Security
-app.use(helmet());
+  // Security
+  app.use(helmet());
 
-// CORS
-const frontendUrl = configService.get<string>('FRONTEND_URL');
+  // Global prefix for all routes
+  app.setGlobalPrefix('api');
 
-app.enableCors({
-  origin: frontendUrl || 'http://localhost:5500',
-  credentials: true,
-});
+  // CORS - Multi-origin support (dev + production)
+  const allowedOrigins = [
+    'http://localhost:5500',                    // Dev local
+    'http://127.0.0.1:5500',                    // Dev local alternative
+    'https://nakowa-three.vercel.app',          // Production frontend
+    configService.get<string>('FRONTEND_URL'),  // Custom domain (from env)
+    /^https:\/\/nakowa-three-.*\.vercel\.app$/, // Preview deployments frontend
+  ].filter(Boolean);
 
-// Global pipes
-app.useGlobalPipes(
-  new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-  }),
-);
+  app.enableCors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, etc.)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`CORS: Origin ${origin} not allowed`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-cron-secret'],
+  });
+
+  // Global pipes
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  // Start server
+  const port = configService.get<number>('PORT') || 3000;
+  await app.listen(port);
+  
+  console.log(`🚀 Nakowa Backend running on: http://localhost:${port}/api`);
+  console.log(`🌍 Environment: ${configService.get<string>('NODE_ENV')}`);
+  console.log(`🔒 CORS enabled for: ${allowedOrigins.join(', ')}`);
 }
+
 bootstrap();

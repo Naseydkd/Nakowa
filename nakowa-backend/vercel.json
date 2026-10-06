@@ -1,0 +1,60 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "name": "nakowa-backend",
+  
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node"
+    }
+  ],
+
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/dist/src/main.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/dist/src/main.js"
+    }
+  ],
+
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://nakowa-three.vercel.app"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization, x-cron-secret"
+        }
+      ]
+    }
+  ],
+
+  "crons": [
+    {
+      "path": "/api/reports/send",
+      "schedule": "0 8 */2 * *"
+    }
+  ],
+
+  "env": {
+    "NODE_ENV": "production"
+  },
+
+  "regions": ["cdg1"]
+}
