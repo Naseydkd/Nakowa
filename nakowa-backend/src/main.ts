@@ -8,39 +8,24 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  // Security
-  app.use(helmet());
+// Security
+app.use(helmet());
 
-  // CORS
-  const frontendUrl = configService.get<string>('FRONTEND_URL') || 'http://localhost:5500';
-  const isDevelopment = configService.get<string>('NODE_ENV') !== 'production';
-  app.enableCors({
-    origin: (origin, callback) => {
-      const isLocalDevServer = Boolean(origin && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin));
-      if (!origin || origin === frontendUrl || (isDevelopment && isLocalDevServer)) {
-        callback(null, true);
-        return;
-      }
-      callback(new Error(`Origine CORS non autorisée : ${origin}`));
-    },
-    credentials: true,
-  });
+// CORS
+const frontendUrl = configService.get<string>('FRONTEND_URL');
 
-  // Global pipes
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+app.enableCors({
+  origin: frontendUrl || 'http://localhost:5500',
+  credentials: true,
+});
 
-  // Global prefix
-  app.setGlobalPrefix('api');
-
-  const port = configService.get('PORT') || 3000;
-  await app.listen(port);
-  
-  console.log(`🚀 Nakowa API running on: http://localhost:${port}/api`);
+// Global pipes
+app.useGlobalPipes(
+  new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+  }),
+);
 }
 bootstrap();
