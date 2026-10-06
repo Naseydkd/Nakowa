@@ -20,6 +20,8 @@ async function bootstrap() {
     'http://127.0.0.1:5500',
     'https://nakowa-three.vercel.app',
     'https://nakowa-frontend.vercel.app',
+    'https://nakowa.site',
+    'https://www.nakowa.site',
     configService.get<string>('FRONTEND_URL'),
     /^https:\/\/nakowa-three-.*\.vercel\.app$/,
     /^https:\/\/nakowa-frontend-.*\.vercel\.app$/,
