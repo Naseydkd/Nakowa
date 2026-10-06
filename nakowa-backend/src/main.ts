@@ -19,8 +19,10 @@ async function bootstrap() {
     'http://localhost:5500',
     'http://127.0.0.1:5500',
     'https://nakowa-three.vercel.app',
+    'https://nakowa-frontend.vercel.app',
     configService.get<string>('FRONTEND_URL'),
     /^https:\/\/nakowa-three-.*\.vercel\.app$/,
+    /^https:\/\/nakowa-frontend-.*\.vercel\.app$/,
   ].filter(Boolean);
 
   app.enableCors({
