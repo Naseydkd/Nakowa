@@ -7,14 +7,6 @@ export default defineConfig({
     assetsDir: 'assets',
     emptyOutDir: true,
     sourcemap: false,
-    // Optimize bundle size
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['chart.js'],
-        },
-      },
-    },
     // Vercel has a 50MB limit
     chunkSizeWarningLimit: 1000,
   },
@@ -36,14 +28,5 @@ export default defineConfig({
 
   // Base public path
   base: '/',
-
-  // Define global constants
-  define: {
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0'),
-  },
-
-  // Optimize dependencies
-  optimizeDeps: {
-    include: ['chart.js', 'leaflet'],
-  },
 });
+
