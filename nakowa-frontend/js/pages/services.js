@@ -1,4 +1,5 @@
 import { serviceApi } from '../services/service.service.js';
+import { API_BASE_URL } from '../core/config.js';
 
 export const servicesPage = {
     render() {
@@ -534,7 +535,7 @@ export const servicesPage = {
 
             try {
                 console.log('📤 Envoi des données:', validData);
-                const response = await fetch('http://localhost:3000/api/clients/import', {
+                const response = await fetch(`${API_BASE_URL}/clients/import`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
