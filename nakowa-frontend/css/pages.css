@@ -982,3 +982,39 @@ body.app-page .login-container {
         font-size: 14px;
     }
 }
+
+
+/* Boutons Voir et Itinéraire */
+.btn-view,
+.btn-itinerary {
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-view:hover {
+    background: rgba(0, 109, 68, 0.05);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-itinerary:hover {
+    background: rgba(23, 162, 184, 0.05);
+    border-color: #17a2b8;
+    color: #17a2b8;
+}
+
+.btn-view i,
+.btn-itinerary i {
+    font-size: 14px;
+}
