@@ -47,13 +47,22 @@ async function bootstrap() {
     }),
   );
 
-  // Start server
-  const port = configService.get<number>('PORT') || 3000;
-  await app.listen(port);
-  
-  console.log(`🚀 Nakowa Backend running on: http://localhost:${port}/api`);
-  console.log(`🌍 Environment: ${configService.get<string>('NODE_ENV')}`);
-  console.log(`🔒 CORS enabled for: ${allowedOrigins.join(', ')}`);
+  // Initialize app (required for serverless)
+  await app.init();
+
+  return app;
 }
 
-bootstrap();
+// For local development
+if (require.main === module) {
+  bootstrap().then(async (app) => {
+    const configService = app.get(ConfigService);
+    const port = configService.get<number>('PORT') || 3000;
+    await app.listen(port);
+    console.log(`🚀 Nakowa Backend running on: http://localhost:${port}/api`);
+    console.log(`🌍 Environment: ${configService.get<string>('NODE_ENV')}`);
+  });
+}
+
+// Export for serverless
+module.exports = { bootstrap };
