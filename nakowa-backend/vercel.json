@@ -3,24 +3,9 @@
   "version": 2,
   "name": "nakowa-backend",
   
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/node"
-    }
-  ],
-
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/dist/src/main.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/src/main.js"
-    }
-  ],
-
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  
   "headers": [
     {
       "source": "/(.*)",
@@ -51,10 +36,6 @@
       "schedule": "0 8 */2 * *"
     }
   ],
-
-  "env": {
-    "NODE_ENV": "production"
-  },
 
   "regions": ["cdg1"]
 }
