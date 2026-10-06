@@ -203,17 +203,29 @@ export class SubscriptionsService {
       },
     });
 
-    // Enrichir avec paidAmount et paymentStatus
-    const enriched = await Promise.all(subscriptions.map(async (sub) => {
-      const payments = await this.prisma.payment.aggregate({
-        where: {
-          clientId: sub.clientId,
-          period: { equals: sub.period, mode: 'insensitive' },
-        },
-        _sum: { amount: true },
-      });
+    // Optimisation N+1 : Récupérer TOUS les paiements en 1 seule requête
+    const allClientIds = [...new Set(subscriptions.map(s => s.clientId))];
+    const allPeriods = [...new Set(subscriptions.map(s => s.period))];
+    
+    const allPayments = await this.prisma.payment.findMany({
+      where: {
+        clientId: { in: allClientIds },
+        period: { in: allPeriods, mode: 'insensitive' },
+      },
+      select: { clientId: true, period: true, amount: true },
+    });
 
-      const paidAmount = payments._sum.amount || 0;
+    // Grouper les paiements par clientId + period
+    const paymentsByClientAndPeriod: Record<string, number> = {};
+    allPayments.forEach(payment => {
+      const key = `${payment.clientId}|${(payment.period || '').toLowerCase()}`;
+      paymentsByClientAndPeriod[key] = (paymentsByClientAndPeriod[key] || 0) + payment.amount;
+    });
+
+    // Enrichir avec paidAmount et paymentStatus
+    const enriched = subscriptions.map((sub) => {
+      const key = `${sub.clientId}|${(sub.period || '').toLowerCase()}`;
+      const paidAmount = paymentsByClientAndPeriod[key] || 0;
       const remaining  = Math.max(0, sub.amount - paidAmount);
 
       let paymentStatus: string;
@@ -240,7 +252,7 @@ export class SubscriptionsService {
         collectedCount,
         totalPassages,
       };
-    }));
+    });
 
     return enriched;
   }
