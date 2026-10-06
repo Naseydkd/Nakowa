@@ -52,31 +52,50 @@ export class ClientsService {
     // Construire le label "periode" pour filtrer par mois exact
     const periodLabel = startOfMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toLowerCase();
 
-    const data = await Promise.all(clients.map(async (client) => {
-      // Calcul du restant total de TOUS les mois impayés
-      // 1. Somme de tous les abonnements actifs du client
-      const allSubscriptions = await this.prisma.subscription.findMany({
-        where: { clientId: client.id, isActive: true },
-        select: { amount: true, period: true },
-      });
+    // Optimisation: Récupérer TOUS les abonnements et paiements en 2 requêtes au lieu de N requêtes
+    const clientIds = clients.map(c => c.id);
+    
+    const [allSubscriptions, allPayments] = await Promise.all([
+      this.prisma.subscription.findMany({
+        where: { clientId: { in: clientIds }, isActive: true },
+        select: { clientId: true, amount: true, period: true },
+      }),
+      this.prisma.payment.findMany({
+        where: { clientId: { in: clientIds } },
+        select: { clientId: true, amount: true, period: true },
+      }),
+    ]);
 
-      // 2. Somme de tous les paiements du client (par period)
-      const allPayments = await this.prisma.payment.findMany({
-        where: { clientId: client.id },
-        select: { amount: true, period: true },
-      });
+    // Grouper par clientId
+    const subscriptionsByClient: Record<string, typeof allSubscriptions> = {};
+    const paymentsByClient: Record<string, typeof allPayments> = {};
 
-      // 3. Calculer le restant par period puis sommer
+    allSubscriptions.forEach(sub => {
+      if (!subscriptionsByClient[sub.clientId]) subscriptionsByClient[sub.clientId] = [];
+      subscriptionsByClient[sub.clientId].push(sub);
+    });
+
+    allPayments.forEach(pay => {
+      if (!paymentsByClient[pay.clientId]) paymentsByClient[pay.clientId] = [];
+      paymentsByClient[pay.clientId].push(pay);
+    });
+
+    // Calculer le restant pour chaque client
+    const data = clients.map((client) => {
+      const clientSubs = subscriptionsByClient[client.id] || [];
+      const clientPays = paymentsByClient[client.id] || [];
+
+      // Calculer le restant par period puis sommer
       const paidByPeriod: Record<string, number> = {};
-      allPayments.forEach(p => {
+      clientPays.forEach(p => {
         const key = (p.period || '').toLowerCase();
         paidByPeriod[key] = (paidByPeriod[key] || 0) + p.amount;
       });
 
       let totalDebt = 0; // Restant total de tous les mois impayés
-      allSubscriptions.forEach(sub => {
-        const key   = (sub.period || '').toLowerCase();
-        const paid  = paidByPeriod[key] || 0;
+      clientSubs.forEach(sub => {
+        const key = (sub.period || '').toLowerCase();
+        const paid = paidByPeriod[key] || 0;
         const remaining = Math.max(0, sub.amount - paid);
         totalDebt += remaining;
       });
@@ -85,7 +104,7 @@ export class ClientsService {
         ...client,
         totalDebt, // Total restant à payer sur tous les mois
       };
-    }));
+    });
 
     return {
       data,
