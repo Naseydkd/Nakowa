@@ -21,22 +21,55 @@
 
 ⚠️ **IMPORTANT** : Supprime d'abord tous les anciens enregistrements A ou CNAME pour `@` et `www` si Hostinger en a créés par défaut.
 
-#### ✅ Ajoute ces 3 enregistrements :
+#### ✅ Ajoute ces enregistrements (recommandations Vercel 2024) :
+
+**Pour le domaine principal (nakowa.site) :**
 
 | Type | Nom | Pointe vers | TTL |
 |------|-----|-------------|-----|
+| `A` | `@` | `76.76.19.19` | 3600 |
+| `A` | `@` | `76.223.126.88` | 3600 |
 | `A` | `@` | `76.76.21.21` | 3600 |
+| `AAAA` | `@` | `2600:1901:0:b1e3::` | 3600 |
+
+**Pour www (www.nakowa.site) :**
+
+| Type | Nom | Pointe vers | TTL |
+|------|-----|-------------|-----|
 | `CNAME` | `www` | `cname.vercel-dns.com.` | 3600 |
+
+**Pour l'API (api.nakowa.site) :**
+
+| Type | Nom | Pointe vers | TTL |
+|------|-----|-------------|-----|
 | `CNAME` | `api` | `nakowa-backend.onrender.com.` | 3600 |
 
 > 📝 **Note** : Le point `.` à la fin de `cname.vercel-dns.com.` et `nakowa-backend.onrender.com.` est important (certains systèmes l'ajoutent automatiquement).
+
+> ℹ️ **IPv6 (AAAA)** : Optionnel mais recommandé pour les connexions modernes. Si Hostinger ne supporte pas AAAA, ce n'est pas bloquant.
 
 ### Capture d'écran de ce que tu devrais voir
 
 ```
 Type    Nom    Valeur                           TTL
 ────────────────────────────────────────────────────
+A       @      76.76.19.19                      3600
+A       @      76.223.126.88                    3600
 A       @      76.76.21.21                      3600
+AAAA    @      2600:1901:0:b1e3::               3600
+CNAME   www    cname.vercel-dns.com             3600
+CNAME   api    nakowa-backend.onrender.com      3600
+```
+
+**Alternative simplifiée si Hostinger limite le nombre d'enregistrements A :**
+
+Tu peux utiliser uniquement les 2 premières IP (les nouvelles recommandées) :
+
+```
+Type    Nom    Valeur                           TTL
+────────────────────────────────────────────────────
+A       @      76.76.19.19                      3600
+A       @      76.223.126.88                    3600
 CNAME   www    cname.vercel-dns.com             3600
 CNAME   api    nakowa-backend.onrender.com      3600
 ```
@@ -126,9 +159,13 @@ Le commit sera fait automatiquement avec les autres changements.
 Ouvre un terminal et tape :
 
 ```bash
-# Vérifier le domaine principal
+# Vérifier le domaine principal (devrait montrer les 3 IP Vercel)
 dig nakowa.site +short
-# Résultat attendu : 76.76.21.21
+# Résultat attendu : 76.76.19.19, 76.223.126.88, 76.76.21.21 (ordre peut varier)
+
+# Vérifier IPv6 (optionnel)
+dig nakowa.site AAAA +short
+# Résultat attendu : 2600:1901:0:b1e3::
 
 # Vérifier www
 dig www.nakowa.site +short
@@ -140,7 +177,7 @@ dig api.nakowa.site +short
 ```
 
 **Pas de terminal ?** Utilise [dnschecker.org](https://dnschecker.org) :
-- Entre `nakowa.site` et vérifie que ça pointe vers `76.76.21.21`
+- Entre `nakowa.site` et vérifie que ça pointe vers les IP Vercel
 - Entre `api.nakowa.site` et vérifie que ça pointe vers Render
 
 ### Test 2 : Frontend accessible avec HTTPS
